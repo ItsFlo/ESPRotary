@@ -37,8 +37,12 @@ ESPRotary::ESPRotary(byte pin1, byte pin2, byte steps_per_click /* = 1 */, int l
 void ESPRotary::begin(byte pin1, byte pin2, byte steps_per_click /* = 1 */, int lower_bound /* = INT16_MIN */, int upper_bound /* = INT16_MAX */, int inital_pos /* = 0 */, int increment /* = 1 */) {
   this->pin1 = pin1;
   this->pin2 = pin2;
-  pinMode(pin1, INPUT_PULLUP);
-  pinMode(pin2, INPUT_PULLUP);
+  if (pin1 != VIRTUAL_PIN) {
+    pinMode(pin1, INPUT_PULLUP);
+  }
+  if (pin2 != VIRTUAL_PIN) {
+    pinMode(pin2, INPUT_PULLUP);
+  }
 
   setUpperBound(upper_bound);
   setLowerBound(lower_bound);
@@ -213,7 +217,7 @@ void ESPRotary::loop() {
 
 bool ESPRotary::_wasRotated() {
   static const int8_t factors[] = {0, 1, -1, 2, -1, 0, -2, 1, 1, -2, 0, -1, 2, -1, 1, 0};
-  int encoderState = (state & 3) | digitalRead(pin1) << 2 | digitalRead(pin2) << 3 ;
+  int encoderState = (state & 3) | _getValuePin1() << 2 | _getValuePin2() << 3 ;
   steps += factors[encoderState] * increment;
   state = (encoderState >> 2);
   int stepDifference = abs(steps - last_steps);
@@ -366,6 +370,21 @@ void ESPRotary::retriggerEvent(bool retrigger) {
 
 bool ESPRotary::isInSpeedup() const {
   return in_speedup;
+}
+
+/////////////////////////////////////////////////////////////////
+
+byte ESPRotary::_getValuePin1() const {
+  if (pin1 == VIRTUAL_PIN) {
+    return LOW;
+  }
+  return digitalRead(pin1);
+}
+byte ESPRotary::_getValuePin2() const {
+  if (pin2 == VIRTUAL_PIN) {
+    return LOW;
+  }
+  return digitalRead(pin2);
 }
 
 /////////////////////////////////////////////////////////////////

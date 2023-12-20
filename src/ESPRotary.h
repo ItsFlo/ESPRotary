@@ -15,6 +15,8 @@
 
 /////////////////////////////////////////////////////////////////
 
+#define VIRTUAL_PIN 254
+
 enum class rotary_direction {
   undefined = 0,
   right = 1,
@@ -65,6 +67,9 @@ class ESPRotary {
 
   CallbackFunction speedup_start_cb = NULL;
   CallbackFunction speedup_end_cb = NULL;
+
+  virtual byte _getValuePin1() const;
+  virtual byte _getValuePin2() const;
 
  public:
   ESPRotary();
